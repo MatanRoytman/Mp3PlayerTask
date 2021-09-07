@@ -1,3 +1,6 @@
+function time(n){
+  return n > 9 ? "" + n: "0" + n;
+}
 const player = {
   songs: [
     {
@@ -48,49 +51,215 @@ const player = {
     { id: 5, name: 'Israeli', songs: [4, 5] },
   ],
   playSong(song) {
-    console.log(/* your code here */)
+    console.log("Playing " + song.title + "from "+song.album + "by "+ song.artist + " | "+ time(Math.floor(song.duration/60)) + ":" +time(song.duration % 60));
+
   },
 }
 
 function playSong(id) {
-  // your code here
+  for (let index = 0; index < player.songs.length; index++) {
+    if (id==player.songs[index].id){
+      player.playSong(player.songs[index]);
+      break;
+    }
+  }
 }
 
 function removeSong(id) {
-  // your code here
+  /* Gets a song ID. 
+  Removes the song with the given ID from the player (from songs and playlists).*/
+  for (let index = 0; index < player.songs.length; index++) {
+    if (id==player.songs[index].id) {
+      delete player.songs[index];
+      console.log("SUCCESS delete: "+index);
+      break;
+    }
+  }
+  for (let index = 0; index < player.playlists.length; index++){
+    for (let index2 = 0; index2 < player.playlists[index].songs.length; index2++) {
+      if (id==player.playlists[index].songs[index2]) {
+        delete player.playlists[index].songs[index2];
+        console.log("SUCCESS delete: "+index+" "+index2);
+        break;
+      }
+    }
+  }
 }
 
 function addSong(title, album, artist, duration, id) {
-  // your code here
+  /* Gets a title, album, artist, duration & ID. Adds a new song with given properties to the player.
+  The ID is optional, and if omitted should be automatically generated. 
+  The song duration should be in mm:ss format (for example 06:27). 
+  Returns the ID of the new song.*/
+  let new_id = 0;
+  if (id) {
+    for (let index = 0; index < player.songs.length; index++) {
+      if (id == player.songs[index].id ) {
+        console.log("ERROR: want to add song with same id");
+        return -1;
+      }     
+    }
+    new_id = id;
+  }
+  else {
+    let max=1;
+    for (let index = 0; index < player.songs.length; index++) {
+      if(max < player.songs[index].id){
+        max = player.songs[index].id;
+      }
+    }
+    new_id = max + 1;
+  }
+  
+  let newSong = {
+    id: new_id,
+    title: title,
+    album: album,
+    artist: artist,
+    duration: duration,
+  } 
+  player.songs.push(newSong);
+  console.log("new song id: "+new_id);
+  playSong(new_id);
+  return new_id;
 }
-
+//NEED TO FIX- TIME FORMAT
 function removePlaylist(id) {
-  // your code here
+  /*Gets a playlist ID.
+   Remove the playlist with the given ID from the player 
+   (does not delete the songs inside it).*/
+  for (let index = 0; index < player.playlists.length; index++) {
+    if (id==player.playlists[index].id) {
+      delete player.playlists[index];
+      console.log("SUCCESS delete playlist: "+index);
+      break;
+    }
+  }
 }
 
 function createPlaylist(name, id) {
-  // your code here
+  /*Gets a name & ID. Creates a new, empty playlist with the given details.
+   The ID is optional, and if omitted should be automatically generated.
+   Returns the ID of the new playlist.*/
+  let particular_id = 0;
+  if (id) {
+    for (let index = 0; index < player.playlists.length; index++) {
+      if (id == player.playlists[index].id ) {
+        console.log("ERROR: want to add playlist with same id");
+        return -1;
+      }     
+    }
+    particular_id = id;
+  }
+  else {
+    let max=1;
+    for (let index = 0; index < player.playlists.length; index++) {
+      if(max < player.playlists[index].id){
+        max = player.playlists[index].id;
+      }
+    }
+    particular_id = max + 1;
+  }
+  let newPlaylist = {
+    name : name,
+    id : particular_id,
+    songs: [],
+  }
+   player.playlists.push(newPlaylist);
+   console.log("new playlist id: "+particular_id);
+   console.log("playlist name: " + newPlaylist.name);
+   return particular_id;
+
 }
 
 function playPlaylist(id) {
-  // your code here
+  /*Gets a playlist ID.
+  Plays all songs in the specified playlist, in the order the appear in the playlist.*/
+  for (let index = 0; index < player.playlists.length; index++) {
+    if (id==player.playlists[index].id){
+      for (let index2 = 0; index2 < player.playlists[index].songs.length; index2++) {
+        playSong(player.playlists[index].songs[index2]); 
+      }
+    }
+  }
 }
-
 function editPlaylist(playlistId, songId) {
-  // your code here
+  let songsList = [];
+  let currentplaylist = { id: 0, name: '', songs: [0] };
+  currentplaylist = null;
+  /* Gets a playlist ID & a song ID.
+  If the song ID exists in the playlist, removes it.
+  If it was the only song in the playlist, also deletes the playlist.
+  If the song ID does not exist in the playlist, adds it to the end of the playlist.*/
+  for (let index = 0; index < player.playlists.length; index++) {
+    if (playlistId==player.playlists[index].id) {
+      currentplaylist = player.playlists[index];
+      songsList = player.playlists[index].songs;
+      console.log ("find plalist number: "+playlistId);
+      break;
+    }
+    if (index==player.playlists.length-1){
+      console.log ("ERROR- couldn't find the playlist: "+playlistId);
+      return;
+    }
+  }
+  for (let index = 0; index < songsList.length; index++) {
+    console.log ("try to check songID: "+ songId + " with: " + songsList[index]);
+    if (songId == songsList[index]) {
+      songsList.splice(index, 1);;
+      console.log("SUCCESS delete song from playlist: " + playlistId + "length: " + songsList.length);
+      if (songsList.length===0) {
+        console.log("SUCCESS delete all playlist: "+ currentplaylist.id)
+        delete currentplaylist;
+      }
+      return;
+    }       
+  }
+  songsList.push(songId);
 }
-
 function playlistDuration(id) {
-  // your code here
+  /*Gets a playlist ID.
+  Returns the total duration of the entire playlist with the given ID.*/
+  let sum =0;
+  let list=[];
+  list=0;
+  for (let index = 0; index < player.playlists.length; index++) {
+    if (id==player.playlists[index].id){
+      list=player.playlists[index].songs;
+      //console.log("got the play list: "+index);
+      break;
+    }
+  }
+  if (list == 0){
+    console.log("COULD NOT FIND THE PLAYLIST");
+    return;
+  }
+  for (let index = 0; index < player.songs.length; index++) {
+    for (let index2 = 0; index2 < list.length; index2++) {
+      if (player.songs[index].id==list[index2]){
+        sum += player.songs[index].duration;
+      }
+    }
+  }
+  console.log("Play list duraion: " + sum)
 }
 
 function searchByQuery(query) {
-  // your code here
+  /* Gets a query string. Returns a results object, which has:
+
+  songs: an array of songs in which either title or album or artist contain the query string.
+  The songs should be sorted by their titles.
+
+  playlists: an array of playlists in which the name contains the query string.
+  The playlists should be sorted by their names.
+  The comparison in both cases should be case-insensitive.*/
 }
 
 function searchByDuration(duration) {
-  // your code here
-}
+  /*Gets a duration in mm:ss format (for example 11:03).
+  Returns the song, or playlist, with the closest duration to what was given.*/
+
+  function mmssFormatToBigNumber(mm:ss);
 
 module.exports = {
   player,
@@ -104,4 +273,6 @@ module.exports = {
   playlistDuration,
   searchByQuery,
   searchByDuration,
+
+}
 }
