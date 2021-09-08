@@ -136,7 +136,6 @@ function removePlaylist(id) {
     }
   }
 }
-
 function createPlaylist(name, id) {
   /*Gets a name & ID. Creates a new, empty playlist with the given details.
    The ID is optional, and if omitted should be automatically generated.
@@ -171,7 +170,6 @@ function createPlaylist(name, id) {
    return particular_id;
 
 }
-
 function playPlaylist(id) {
   /*Gets a playlist ID.
   Plays all songs in the specified playlist, in the order the appear in the playlist.*/
@@ -243,7 +241,6 @@ function playlistDuration(id) {
   }
   console.log("Play list duraion: " + sum)
 }
-
 function searchByQuery(query) {
   /* Gets a query string. Returns a results object, which has:
 
@@ -253,26 +250,69 @@ function searchByQuery(query) {
   playlists: an array of playlists in which the name contains the query string.
   The playlists should be sorted by their names.
   The comparison in both cases should be case-insensitive.*/
+  let resultObjectSong = [
+    {
+      id: 0,
+      title: '',
+      album: '',
+      artist: '',
+      duration: 0,
+    },];
+    resultObjectSong.pop();
+  let resultObjectPlaylist =[
+    { id: 0, name: '', songs: [0,1,2,3,4,5]},];
+    resultObjectPlaylist.pop();
+  for (let index = 0; index < player.songs.length; index++) {
+    if (player.songs[index].title.includes(query)) {
+      resultObjectSong.push(player.songs[index]);
+    }
+    else if (player.songs[index].album.includes(query)) {
+      resultObjectSong.push(player.songs[index]); 
+    }
+    else if (player.songs[index].artist.includes(query)) {
+      resultObjectSong.push(player.songs[index]); 
+    }
+    for (let index = 0; index < resultObjectSong.length; index++) {
+     player.playSong(resultObjectSong[index])
+    }
+  }
+  for (let index = 0; index < player.playlists.length; index++) {
+    if (player.playlists[index].name) {
+    }  
+  }
 }
-
 function searchByDuration(duration) {
+  let sumMin = 0;
+  let sumSec = 0;
+  let sumDuration = 0;
+  sumMin =duration[0]*600 + duration[1]*60;
+  sumSec += [3]+[4];
+  sumDuration = sumMin + sumSec
+  console.log("song duration: " + sumDuration);
+}
   /*Gets a duration in mm:ss format (for example 11:03).
   Returns the song, or playlist, with the closest duration to what was given.*/
 
-  function mmssFormatToBigNumber(mm:ss);
+/*  function mmssFormatToBigNumber(mm:ss);
+  var hms = '02:04';   // your input string
+  var a = hms.split(':'); // split it at the colons
+  
+  // Hours are worth 60 minutes.
+  var minutes = (+a[0]) * 60 + (+a[1]);
+  
+  console.log(minutes);*/
 
-module.exports = {
-  player,
-  playSong,
-  removeSong,
-  addSong,
-  removePlaylist,
-  createPlaylist,
-  playPlaylist,
-  editPlaylist,
-  playlistDuration,
-  searchByQuery,
-  searchByDuration,
-
-}
-}
+  export default {
+    player,
+    playSong,
+    removeSong,
+    addSong,
+    removePlaylist,
+    createPlaylist,
+    playPlaylist,
+    editPlaylist,
+    playlistDuration,
+    searchByQuery,
+    searchByDuration,
+  
+  }
