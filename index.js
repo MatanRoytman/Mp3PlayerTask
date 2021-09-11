@@ -322,8 +322,7 @@ function searchByDuration(duration) {
     return answer_song;
   }
 }
-/*
-module.export = {
+module.exports = {
   player,
   playSong,
   removeSong,
@@ -336,4 +335,3 @@ module.export = {
   searchByQuery,
   searchByDuration,
 }
-*/
