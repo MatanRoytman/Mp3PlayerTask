@@ -106,7 +106,7 @@ function addSong(title, album, artist, duration, id) {
   if (id) {
     for (let index = 0; index < player.songs.length; index++) {
       if (id == player.songs[index].id ) {
-        console.log("ERROR: want to add song with same id");
+        //console.log("ERROR: want to add song with same id");
         return -1;
       }     
     }
