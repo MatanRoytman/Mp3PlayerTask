@@ -42,10 +42,18 @@ const player = {
       artist: 'Full Trunk',
       duration: 259,
     },
+    {
+    id: 12,
+    title: 'Stone',
+    album: 'Metal',
+    artist: 'Full Trunk',
+    duration: 259,
+  },
   ],
   playlists: [
     { id: 1, name: 'Metal', songs: [1, 7, 4] },
     { id: 5, name: 'Israeli', songs: [4, 5] },
+    { id: 7, name: 'Metalic', songs: [1,5]}
   ],
   playSong(song) {
     console.log("Playing " + song.title + " from "+song.album + " by "+ song.artist + " | "+ time(Math.floor(song.duration/60)) + ":" +time(song.duration % 60)+".");
@@ -54,14 +62,11 @@ const player = {
 function time(n){
   return n > 9 ? "" + n: "0" + n;
 }
-
 function mmssFormatToBigNumber(duration){
   const mm = duration[0] + duration[1];
   const ss = duration[3] + duration[4];
   return duration = mm*60 + +ss;
 }
-
-
 function playSong(id) {
   for (let index = 0; index < player.songs.length; index++) {
     if (id===player.songs[index].id){
@@ -69,9 +74,8 @@ function playSong(id) {
       return;      
     }
   }
-  throw new Error ("song not found");
+  throw Error ("song not found");
 }
-
 function removeSong(id) {
   /*Gets a song ID. 
   Removes the song with the given ID from the player (from songs and playlists).*/
@@ -83,8 +87,8 @@ function removeSong(id) {
       break;
     }
   }
-  if (index === songs.length){
-    throw new error("Song id not found.");
+  if (index === player.songs.length){
+    throw Error("Song id not found.");
   }
   for (index = 0; index < player.playlists.length; index++){
     for (let index2 = 0; index2 < player.playlists[index].songs.length; index2++) {
@@ -96,7 +100,6 @@ function removeSong(id) {
     }
   }
 }
-
 function addSong(title, album, artist, duration, id) {
   /* Gets a title, album, artist, duration & ID. Adds a new song with given properties to the player.
   The ID is optional, and if omitted should be automatically generated. 
@@ -107,7 +110,8 @@ function addSong(title, album, artist, duration, id) {
     for (let index = 0; index < player.songs.length; index++) {
       if (id == player.songs[index].id ) {
         //console.log("ERROR: want to add song with same id");
-        return -1;
+        //return -1;
+        throw Error("Song id already exists!");
       }     
     }
     new_id = id;
@@ -142,9 +146,10 @@ function removePlaylist(id) {
     if (id==player.playlists[index].id) {
       player.playlists.splice(index, 1)
       //console.log("SUCCESS delete playlist: "+index);
-      break;
+      return;
     }
   }
+  throw Error("Playlist id not exists.");
 }
 function createPlaylist(name, id) {
   /*Gets a name & ID. Creates a new, empty playlist with the given details.
@@ -154,7 +159,8 @@ function createPlaylist(name, id) {
   if (id) {
     for (let index = 0; index < player.playlists.length; index++) {
       if (id == player.playlists[index].id ) {
-        console.log("ERROR: want to add playlist with same id");
+        throw Error("Playlist id already exists!");
+        //console.log("ERROR: want to add playlist with same id");
         return -1;
       }     
     }
@@ -188,8 +194,10 @@ function playPlaylist(id) {
       for (let index2 = 0; index2 < player.playlists[index].songs.length; index2++) {
         playSong(player.playlists[index].songs[index2]); 
       }
+      return;
     }
   }
+  throw Error("Playlist id not exists!");
 }
 function editPlaylist(playlistId, songId) {
   let songsList = [];
@@ -200,6 +208,15 @@ function editPlaylist(playlistId, songId) {
   If it was the only song in the playlist, also deletes the playlist.
   If the song ID does not exist in the playlist, adds it to the end of the playlist.*/
   let index;
+  for (let index = 0; index < player.songs.length; index++) {
+    if (songId == player.songs[index].id) {
+      break;
+    }
+    if (index == player.songs.length-1) {
+      throw Error("Song is not exists!")
+    }
+  }
+
   for (index = 0; index < player.playlists.length; index++) {
     if (playlistId==player.playlists[index].id) {
       currentplaylist = player.playlists[index];
@@ -208,7 +225,7 @@ function editPlaylist(playlistId, songId) {
       break;
     }
     if (index==player.playlists.length-1){
-      throw new Error ("Not found playlist");
+      throw Error ("Playlist id not exists!");
       return;
     }
   }
@@ -240,7 +257,7 @@ function playlistDuration(id) {
     }
   }
   if (list == 0){
-    throw new Error("couldn't find the playlist");
+    throw Error("couldn't find the playlist");
     return;
   }
   for (let index = 0; index < player.songs.length; index++) {
@@ -262,7 +279,8 @@ function searchByQuery(query) {
   playlists: an array of playlists in which the name contains the query string.
   The playlists should be sorted by their names.
   The comparison in both cases should be case-insensitive.*/
-  let resultObjectSong = [
+  const string1 = query.toLowerCase();
+    let resultObjectSong = [
     {
       id: 0,
       title: '',
@@ -271,27 +289,32 @@ function searchByQuery(query) {
       duration: 0,
     },];
     resultObjectSong.pop();
-  let resultObjectPlaylist =[
-    { id: 0, name: '', songs: [0,1,2,3,4,5]},];
-    resultObjectPlaylist.pop();
-  for (let index = 0; index < player.songs.length; index++) {
-    if (player.songs[index].title.includes(query)) {
-      resultObjectSong.push(player.songs[index]);
-    }
-    else if (player.songs[index].album.includes(query)) {
-      resultObjectSong.push(player.songs[index]); 
-    }
-    else if (player.songs[index].artist.includes(query)) {
-      resultObjectSong.push(player.songs[index]); 
-    }
-    for (let index = 0; index < resultObjectSong.length; index++) {
-     player.playSong(resultObjectSong[index])
-    }
-  }
-  for (let index = 0; index < player.playlists.length; index++) {
-    if (player.playlists[index].name) {
-    }  
-  }
+      for (let index = 0; index < player.songs.length; index++) {
+        if (player.songs[index].title.toLowerCase().includes(string1)) {
+          resultObjectSong.push(player.songs[index]);
+        }
+        else if (player.songs[index].album.toLowerCase().includes(string1)) {
+          resultObjectSong.push(player.songs[index]); 
+        }
+        else if (player.songs[index].artist.toLowerCase().includes(string1)) {
+          resultObjectSong.push(player.songs[index]); 
+        }
+        for (let index = 0; index < resultObjectSong.length; index++) {
+        player.playSong(resultObjectSong[index]);
+        }
+      }
+    let resultObjectPlaylist =[
+     { id: 0, name: '', songs: [0,1,2,3,4,5]},];
+     resultObjectPlaylist.pop();
+      for (let index = 0; index < player.playlists.length; index++) {
+        if (player.playlists[index].name.toLowerCase().includes(string1)) {
+          resultObjectPlaylist.push(player.playlists[index]);
+        }
+      }
+      for (let index = 0; index < resultObjectPlaylist.length; index++) {
+      console.log(resultObjectPlaylist[index]);
+      }  
+      return {songs: resultObjectSong ,playlists: resultObjectPlaylist};
 }
 function searchByDuration(duration) {
   /*Gets a duration in mm:ss format (for example 11:03).
